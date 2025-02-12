@@ -1,0 +1,8 @@
+
+# Virtual Environments
+/venv
+/Deepseek_RAG_v1/venv
+
+# Pycache
+/__pycache__/
+/Deepseek_RAG_v1/__pycache__/

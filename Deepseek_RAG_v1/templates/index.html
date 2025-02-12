@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Estate Chatbot</title>
+</head>
+<body>
+    <h1>Estate Chatbot</h1>
+    <select id="estateDropdown">
+        <option value="estate1">Estate 1</option>
+        <option value="estate2">Estate 2</option>
+    </select>
+    <input type="text" id="questionInput" placeholder="Ask a question...">
+    <button onclick="askQuestion()">Ask</button>
+    <div id="response"></div>
+
+    <script>
+        async function askQuestion() {
+            const estate = document.getElementById("estateDropdown").value;
+            const question = document.getElementById("questionInput").value;
+            const responseDiv = document.getElementById("response");
+
+            const response = await fetch("http://localhost:8000/ask", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ estate, question })
+            });
+
+            const data = await response.json();
+            responseDiv.innerText = data.answer;
+        }
+    </script>
+</body>
+</html>
