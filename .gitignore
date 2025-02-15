@@ -2,6 +2,7 @@
 # Virtual Environments
 /venv
 /Deepseek_RAG_v1/venv
+/Langflow_langchain/venv
 
 # Pycache
 /__pycache__/
