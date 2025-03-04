@@ -1,0 +1,300 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printing Optimization Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card { 
+            margin-bottom: 20px; 
+        }
+        .visualization {
+            position: relative;
+            border: 2px solid #333;
+            background-color: #f8f9fa;
+            height: 300px;
+            margin-top: 20px;
+        }
+        .piece {
+            position: absolute;
+            background-color: #cfe2ff;
+            border: 1px solid #0d6efd;
+        }
+        .results-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <h1 class="mb-4">Printing Optimization Calculator</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Input Parameters</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="optimizationForm">
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label">Client Length (in)</label>
+                                    <input type="number" class="form-control" id="clientLength" value="4" step="0.01" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Client Width (in)</label>
+                                    <input type="number" class="form-control" id="clientWidth" value="5.25" step="0.01" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label">Material Length (in)</label>
+                                    <input type="number" class="form-control" id="materialLength" value="28" step="0.01" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Material Width (in)</label>
+                                    <input type="number" class="form-control" id="materialWidth" value="34" step="0.01" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-4">
+                                    <label class="form-label">Gutter (in)</label>
+                                    <input type="number" class="form-control" id="gutter" value="0.25" step="0.01" required>
+                                </div>
+                                <div class="col-4">
+                                    <label class="form-label">Bleed (in)</label>
+                                    <input type="number" class="form-control" id="bleed" value="0.25" step="0.01" required>
+                                </div>
+                                <div class="col-4">
+                                    <label class="form-label">Pull (in)</label>
+                                    <input type="number" class="form-control" id="pull" value="0.25" step="0.01" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-4">
+                                    <label class="form-label">Machine Max Length (in)</label>
+                                    <input type="number" class="form-control" id="machineMaxLength" value="15" step="0.01" required>
+                                </div>
+                                <div class="col-4">
+                                    <label class="form-label">Grain Direction</label>
+                                    <select class="form-select" id="grainDirection">
+                                        <option value="any">Any</option>
+                                        <option value="lengthwise">Lengthwise</option>
+                                        <option value="widthwise">Widthwise</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <label class="form-label">Orientation</label>
+                                    <select class="form-select" id="orientation">
+                                        <option value="landscape">Landscape</option>
+                                        <option value="portrait">Portrait</option>
+                                        <option value="flexible">Flexible</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Calculate Optimization</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Results</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="resultsSection" class="results-card mb-3">
+                            <p><strong>Printing Size:</strong> <span id="printingSize">-</span></p>
+                            <p><strong>Printing Outs:</strong> <span id="printingOuts">-</span></p>
+                            <p><strong>Standard Size Outs:</strong> <span id="standardSizeOuts">-</span></p>
+                            <p><strong>Total Outs:</strong> <span id="totalOuts">-</span></p>
+                            
+                            <button id="toggleDetails" class="btn btn-sm btn-secondary mt-2" style="display: none;">
+                                Show Details
+                            </button>
+                        </div>
+                        
+                        <div id="detailsSection" style="display: none;">
+                            <h6 class="fw-bold mb-2">Best Configuration Details:</h6>
+                            <div id="bestConfigDetails" class="p-3 mb-3 bg-light rounded">
+                                <!-- Best config details will be populated here -->
+                            </div>
+                            
+                            <div id="alternativeConfigs">
+                                <h6 class="fw-bold mb-2">Alternative Configurations:</h6>
+                                <div id="alternativeConfigsList" class="p-3 bg-light rounded" style="max-height: 200px; overflow-y: auto;">
+                                    <!-- Alternative configs will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="visualizationCard" class="card" style="display: none;">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Visual Representation</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="visualization" class="visualization">
+                            <!-- Pieces will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('optimizationForm');
+            const toggleDetailsBtn = document.getElementById('toggleDetails');
+            const detailsSection = document.getElementById('detailsSection');
+            let showDetails = false;
+            
+            // Handle form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                calculateOptimization();
+            });
+            
+            // Toggle details visibility
+            toggleDetailsBtn.addEventListener('click', function() {
+                showDetails = !showDetails;
+                detailsSection.style.display = showDetails ? 'block' : 'none';
+                toggleDetailsBtn.textContent = showDetails ? 'Hide Details' : 'Show Details';
+            });
+            
+            // Calculate optimization on page load
+            calculateOptimization();
+            
+            function calculateOptimization() {
+                // Gather form data
+                const inputData = {
+                    clientLength: document.getElementById('clientLength').value,
+                    clientWidth: document.getElementById('clientWidth').value,
+                    materialLength: document.getElementById('materialLength').value,
+                    materialWidth: document.getElementById('materialWidth').value,
+                    gutter: document.getElementById('gutter').value,
+                    bleed: document.getElementById('bleed').value,
+                    pull: document.getElementById('pull').value,
+                    machineMaxLength: document.getElementById('machineMaxLength').value,
+                    grainDirection: document.getElementById('grainDirection').value,
+                    orientation: document.getElementById('orientation').value
+                };
+                
+                // Call API
+                fetch('/api/optimize', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(inputData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Update results section
+                    document.getElementById('printingSize').textContent = 
+                        `${data.printingSize.length} × ${data.printingSize.width} inches`;
+                    document.getElementById('printingOuts').textContent = data.printingOuts;
+                    document.getElementById('standardSizeOuts').textContent = data.standardSizeOuts;
+                    document.getElementById('totalOuts').textContent = data.totalOuts;
+                    
+                    // Show or hide details button based on results
+                    toggleDetailsBtn.style.display = data.bestConfig ? 'block' : 'none';
+                    
+                    // Update details section if visible
+                    if (data.bestConfig) {
+                        // Best config details
+                        const bestConfig = data.bestConfig;
+                        document.getElementById('bestConfigDetails').innerHTML = `
+                            <p>Material Orientation: ${bestConfig.materialOrientation}</p>
+                            <p>Client Orientation: ${bestConfig.clientOrientation}</p>
+                            <p>Pieces Along Length: ${bestConfig.piecesAlongLength}</p>
+                            <p>Pieces Along Width: ${bestConfig.piecesAlongWidth}</p>
+                            <p>Material Efficiency: ${bestConfig.efficiency.toFixed(2)}%</p>
+                        `;
+                        
+                        // Alternative configs
+                        const altConfigsContainer = document.getElementById('alternativeConfigsList');
+                        altConfigsContainer.innerHTML = '';
+                        
+                        if (data.configurations.length > 1) {
+                            data.configurations.slice(1, 5).forEach((config, index) => {
+                                const configDiv = document.createElement('div');
+                                configDiv.className = 'mb-3 pb-2 border-bottom';
+                                configDiv.innerHTML = `
+                                    <p>Material: ${config.materialOrientation}</p>
+                                    <p>Orientation: ${config.clientOrientation}</p>
+                                    <p>Total Outs: ${config.totalOuts}</p>
+                                    <p>Efficiency: ${config.efficiency.toFixed(2)}%</p>
+                                `;
+                                altConfigsContainer.appendChild(configDiv);
+                            });
+                        } else {
+                            altConfigsContainer.innerHTML = '<p>No alternative configurations available.</p>';
+                        }
+                        
+                        // Show visualization
+                        document.getElementById('visualizationCard').style.display = 'block';
+                        renderVisualization(data.bestConfig, inputData);
+                    } else {
+                        document.getElementById('visualizationCard').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while calculating optimization.');
+                });
+            }
+            
+            function renderVisualization(config, inputData) {
+                const visualizationDiv = document.getElementById('visualization');
+                visualizationDiv.innerHTML = '';
+                
+                // Determine material dimensions based on orientation
+                const matLength = config.materialOrientation === 'Standard' ? 
+                    parseFloat(inputData.materialLength) : parseFloat(inputData.materialWidth);
+                const matWidth = config.materialOrientation === 'Standard' ? 
+                    parseFloat(inputData.materialWidth) : parseFloat(inputData.materialLength);
+                
+                // Set aspect ratio for visualization container
+                visualizationDiv.style.aspectRatio = `${matLength}/${matWidth}`;
+                
+                // Create pieces
+                const pieceCount = config.piecesAlongLength * config.piecesAlongWidth;
+                const pieceLength = config.actualPrintingSize.length;
+                const pieceWidth = config.actualPrintingSize.width;
+                
+                for (let i = 0; i < pieceCount; i++) {
+                    const row = Math.floor(i / config.piecesAlongWidth);
+                    const col = i % config.piecesAlongWidth;
+                    
+                    const leftPosition = (col * pieceWidth / matWidth) * 100;
+                    const topPosition = (row * pieceLength / matLength) * 100;
+                    const widthPercentage = (pieceWidth / matWidth) * 100;
+                    const heightPercentage = (pieceLength / matLength) * 100;
+                    
+                    const pieceDiv = document.createElement('div');
+                    pieceDiv.className = 'piece';
+                    pieceDiv.style.left = `${leftPosition}%`;
+                    pieceDiv.style.top = `${topPosition}%`;
+                    pieceDiv.style.width = `${widthPercentage}%`;
+                    pieceDiv.style.height = `${heightPercentage}%`;
+                    
+                    visualizationDiv.appendChild(pieceDiv);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
